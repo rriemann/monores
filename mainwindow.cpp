@@ -31,10 +31,7 @@ const real dx    = span/(N);
 const real dx2   = 2*dx;
 
 real f_eval_gauss(real x) {
-    x = std::fmod((x - x0), span) + x0;
-    if(x < x0) {
-        x += span;
-    }
+    x = std::fmod(std::fabs(x - x0), span) + x0;
     return exp(-10*x*x);
 }
 
@@ -119,12 +116,12 @@ void MainWindow::initSolver()
 void MainWindow::timeStep()
 {
     for(size_t i = 0; i < 4; ++i) {
-        data[0] = data2[0] - g_velocity*dt*(data2[1]-data2[N-1])/dx;
+        data[0] = (data2[N-1] + data2[1])/2 - g_velocity*dt*(data2[1]-data2[N-1])/dx;
         for(size_t j = 1; j < N-1; ++j){
             real derivative = (data2[j+1]-data2[j-1])/dx2;
-            data[j] = data2[j] - g_velocity*dt*derivative;
+            data[j] = (data2[j-1] + data2[j+1])/2 - g_velocity*dt*derivative;
         }
-        data[N-1] = data2[N-1] - g_velocity*dt*(data2[0]-data2[N-2])/dx;
+        data[N-1] = (data2[N-2] + data[0])/2 - g_velocity*dt*(data2[0]-data2[N-2])/dx;
         data2 = data;
 
         g_clock++;
