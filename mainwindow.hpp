@@ -28,8 +28,8 @@ class QTimer;
 #include <array>
 
 
-const size_t g_level = 6;
-const size_t N = (1 << 6) + 1;
+const size_t g_level = 10;
+const size_t N = (1 << g_level) + 1;
 
 typedef double real;
 typedef std::array<real,N> Data;

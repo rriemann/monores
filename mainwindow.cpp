@@ -102,7 +102,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::initSolver()
 {
-
     for(Vector &v: errorvalues) {
         v.clear();
     }
@@ -119,8 +118,7 @@ void MainWindow::initSolver()
 
 void MainWindow::timeStep()
 {
-    // calculate new data from data2
-    for(size_t i = 0; i < 1; ++i) {
+    for(size_t i = 0; i < 4; ++i) {
         data[0] = data2[0] - g_velocity*dt*(data2[1]-data2[N-1])/dx;
         for(size_t j = 1; j < N-1; ++j){
             real derivative = (data2[j+1]-data2[j-1])/dx2;
