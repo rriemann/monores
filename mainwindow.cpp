@@ -68,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     qDebug() << QString("max level: %1").arg(g_level);
+    qDebug() << QString("c_cfl: %1").arg(g_velocity*dt/dx);
 
     customPlot->addGraph();
     customPlot->graph(0)->setPen(QPen(Qt::black));
@@ -115,13 +116,15 @@ void MainWindow::initSolver()
 
 void MainWindow::timeStep()
 {
+    // http://www.exp.univie.ac.at/cp1/cp1-6/node72.html (closed form)
+    static const real alpha = g_velocity*dt/dx;
+
     for(size_t i = 0; i < 4; ++i) {
-        data[0] = (data2[N-1] + data2[1])/2 - g_velocity*dt*(data2[1]-data2[N-1])/dx;
+        data[0] = data2[0] - alpha/2*(data2[1]-data2[N-2]-alpha*(data2[1]-2*data2[0]+data2[N-2]));
         for(size_t j = 1; j < N-1; ++j){
-            real derivative = (data2[j+1]-data2[j-1])/dx2;
-            data[j] = (data2[j-1] + data2[j+1])/2 - g_velocity*dt*derivative;
+            data[j] = data2[j] - alpha/2*(data2[j+1]-data2[j-1]-alpha*(data2[j+1]-2*data2[j]+data2[j-1]));
         }
-        data[N-1] = (data2[N-2] + data[0])/2 - g_velocity*dt*(data2[0]-data2[N-2])/dx;
+        data[N-1] = data2[N-1] - alpha/2*(data2[0]-data2[N-2]-alpha*(data2[0]-2*data2[N-1]+data2[N-2]));
         data2 = data;
 
         g_clock++;
@@ -149,9 +152,9 @@ void MainWindow::fillError()
         error_3[j] = diff;
     }
 
-    errorvalues[0] << error_1;
-    errorvalues[1] << sqrt(error_2);
-    errorvalues[2] << * std::max_element(error_3.begin(), error_3.end());
+    errorvalues[0] << error_1/N;
+    errorvalues[1] << sqrt(error_2)/N;
+    errorvalues[2] << (*std::max_element(error_3.begin(), error_3.end()))/N;
 }
 
 void MainWindow::replot()
